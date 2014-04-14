@@ -60,6 +60,13 @@ function! s:select(in, b_pat, e_pat, mode)
   call s:log("epat=" . string(epat))
   if get(a:mode, 'esearch', 0)
     let epos = searchpos(a:b_pat, 'W')
+  elseif has_key(a:mode, 'begin')
+    if get(a:mode, 'conv', 0)
+      let bpat = substitute(a:mode.begin, '\\1', '\=s:escape(sn[1])', '')
+    else
+      let bpat = a:mode.begin
+    endif
+    let epos = searchpairpos(bpat, '', epat, 'W')
   else
     let epos = searchpairpos(a:b_pat, '', epat, 'W')
   endif
@@ -100,11 +107,13 @@ let s:CMD_BEGIN = '\%(^\s*\)\\\k\+{'
 let s:CMD_END   = '}'
 
 function! textobj#latex#env_a()
-  return s:select(0, s:ENV_BEGIN, s:ENV_END, {'conv' : 1})
+  return s:select(0, s:ENV_BEGIN, s:ENV_END,
+        \ {'conv' : 1, 'begin' : '\s*\\begin\s*{\s*\1\s*}'})
 endfunction
 
 function! textobj#latex#env_i()
-  return s:select(1, s:ENV_BEGIN, s:ENV_END, {'conv' : 1})
+  return s:select(1, s:ENV_BEGIN, s:ENV_END,
+        \ {'conv' : 1, 'begin' : '\s*\\begin\s*{\s*\1\s*}'})
 endfunction
 
 function! textobj#latex#cmd_a()
