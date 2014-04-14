@@ -9,6 +9,12 @@ call textobj#user#plugin('latex', {
 \     'select-a': 'aLe',
 \     'select-i': 'iLe',
 \   },
+\  'command' : {
+\     '*select-a-function*': 'textobj#latex#cmd_a',
+\     '*select-i-function*': 'textobj#latex#cmd_i',
+\     'select-a': 'aLc',
+\     'select-i': 'iLc',
+\   },
 \  'display-math': {
 \     '*pattern*': ['\\\[', '\\\]'],
 \     'select-a': 'aL[',
