@@ -23,7 +23,6 @@ call textobj#user#plugin('latex', {
 \  'dollar-math': {
 \     '*select-a-function*': 'textobj#latex#doll_a',
 \     '*select-i-function*': 'textobj#latex#doll_i',
-\     '*pattern*': ['\$\$\=', '\$\$\='],
 \     'select-a': 'aL$',
 \     'select-i': 'iL$',
 \   },
