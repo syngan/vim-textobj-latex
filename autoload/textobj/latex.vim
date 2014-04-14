@@ -3,35 +3,32 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:get_val(key, val)
+function! s:get_val(key, val) " {{{
   return get(g:, 'textobj#latex#' . a:key, a:val)
-endfunction
+endfunction " }}}
 
-function! s:log(str)
+function! s:log(str) " {{{
   if s:get_val('debug', 0)
     call vimconsole#log(a:str)
   endif
-endfunction
+endfunction " }}}
 
-function! s:topos(pos, base)
+function! s:topos(pos, base) " {{{
   return [a:base[0], a:pos[0], a:pos[1], a:base[3]]
-endfunction
+endfunction " }}}
 
 function! s:escape(pattern) " {{{
     return escape(a:pattern, '\/~ .*^[''$')
 endfunction " }}}
 
-" \begin{tako} \begin{hoge} foo \end{hoge} \end{tako}
-" \begin{hoge}
-" foo
-" \end{hoge}
-function! s:select(in, b_pat, e_pat, mode)
-  call s:log("pat=" . string([a:b_pat, a:e_pat]))
+function! s:select_prev(in, s_pat, e_pat, key, mode) " {{{
+  call s:log("pat=" . string([a:s_pat, a:e_pat, a:key]))
   let pos = getpos('.')
   call s:log("pos=" . string(pos))
 
-  let s = search(a:b_pat, 'bcW')
-  call s:log("s=" . s)
+  let spat = substitute(a:s_pat, '\\1', s:escape(a:key), '')
+  let s = search(spat, 'bcW')
+  call s:log("s=" . s . ',spat=' . spat)
   if s == 0
     return 0
   endif
@@ -39,7 +36,7 @@ function! s:select(in, b_pat, e_pat, mode)
   let spos = getpos('.')
   call s:log("spos=" . string(spos))
 
-  let sn = matchlist(getline("."), a:b_pat, spos[2] - 1)
+  let sn = matchlist(getline("."), spat, spos[2] - 1)
   call s:log("sn=" . string(sn))
   if a:in
     let spos[2] += len(sn[0])
@@ -52,23 +49,13 @@ function! s:select(in, b_pat, e_pat, mode)
     endif
   endif
 
-  if get(a:mode, 'conv', 0)
-    let epat = substitute(a:e_pat, '\\1', '\=s:escape(sn[1])', '')
-  else
-    let epat = a:e_pat
-  endif
-  call s:log("epat=" . string(epat))
+  let epat = substitute(a:e_pat, '\\1', '\=s:escape(sn[1])', '')
+  call s:log("epat=" . string(epat) . ',esearch=' . get(a:mode, 'esearch', -1))
   if get(a:mode, 'esearch', 0)
-    let epos = searchpos(a:b_pat, 'W')
-  elseif has_key(a:mode, 'begin')
-    if get(a:mode, 'conv', 0)
-      let bpat = substitute(a:mode.begin, '\\1', '\=s:escape(sn[1])', '')
-    else
-      let bpat = a:mode.begin
-    endif
-    let epos = searchpairpos(bpat, '', epat, 'W')
+    let epos = searchpos(epat, 'W')
   else
-    let epos = searchpairpos(a:b_pat, '', epat, 'W')
+    let spat = substitute(a:s_pat, '\\1', '\=s:escape(sn[1])', '')
+    let epos = searchpairpos(spat, '', epat, 'W')
   endif
   call s:log("epos=" . string(epos))
   if epos[0] == 0 && epos[1] == 0 || epos[0] < pos[1]
@@ -94,43 +81,57 @@ function! s:select(in, b_pat, e_pat, mode)
   call s:log(['v', spos, s:topos(epos, pos)])
   return ['v', spos, s:topos(epos, pos)]
 
-endfunction
+endfunction " }}}
 
+function! s:select(in, b_pat, e_pat, key, mode) " {{{
 
-let s:ENV_BEGIN = '\s*\\begin\s*{\s*\(\k\+\*\=\)\s*}\s*\n\='
+  let p = s:select_prev(a:in, a:b_pat, a:e_pat, a:key, a:mode)
+  if type(p) != type([]) && get(a:mode, 'do_next', 0)
+    return p
+"    return s:select_next(a:in, a:b_pat, a:e_pat, a:key, a:mode)
+  else
+    return p
+  endif
+endfunction " }}}
+
+let s:ENV_KEY   = '\(\k\+\*\=\)'
+let s:ENV_BEGIN = '\s*\\begin\s*{\s*\1\s*}\s*\n\='
 let s:ENV_END   = '\s*\\end\s*{\s*\1\s*}'
 
-let s:DOLL_BEGIN = '\(\$\$\=\)'
+let s:DOLL_KEY   = '\(\$\$\=\)'
+let s:DOLL_BEGIN = '\1'
 let s:DOLL_END   = '\1'
 
 let s:CMD_BEGIN = '\%(^\s*\)\\\k\+{'
 let s:CMD_END   = '}'
 
-function! textobj#latex#env_a()
-  return s:select(0, s:ENV_BEGIN, s:ENV_END,
-        \ {'conv' : 1, 'begin' : '\s*\\begin\s*{\s*\1\s*}'})
-endfunction
+function! textobj#latex#env_a() " {{{
+  return s:select(0, s:ENV_BEGIN, s:ENV_END, s:ENV_KEY,
+        \ {'conv' : 1})
+endfunction " }}}
 
-function! textobj#latex#env_i()
-  return s:select(1, s:ENV_BEGIN, s:ENV_END,
-        \ {'conv' : 1, 'begin' : '\s*\\begin\s*{\s*\1\s*}'})
-endfunction
+function! textobj#latex#env_i() " {{{
+  return s:select(1, s:ENV_BEGIN, s:ENV_END, s:ENV_KEY,
+        \ {'conv' : 1})
+endfunction " }}}
 
-function! textobj#latex#cmd_a()
-  return s:select(0, s:CMD_BEGIN, s:CMD_END, {'conv' : 0})
-endfunction
+function! textobj#latex#cmd_a() " {{{
+  return s:select(0, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0})
+endfunction " }}}
 
-function! textobj#latex#cmd_i()
-  return s:select(1, s:CMD_BEGIN, s:CMD_END, {'conv' : 0})
-endfunction
+function! textobj#latex#cmd_i() " {{{
+  return s:select(1, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0})
+endfunction " }}}
 
-function! textobj#latex#doll_a()
-  return s:select(0, s:DOLL_BEGIN, s:DOLL_END, {'conv': 1, 'esearch': 1})
-endfunction
+function! textobj#latex#doll_a() " {{{
+  return s:select(0, s:DOLL_BEGIN, s:DOLL_END, s:DOLL_KEY,
+        \ {'conv': 1, 'esearch': 1})
+endfunction " }}}
 
-function! textobj#latex#doll_i()
-  return s:select(1, s:DOLL_BEGIN, s:DOLL_END, {'conv': 1, 'esearch': 1})
-endfunction
+function! textobj#latex#doll_i() " {{{
+  return s:select(1, s:DOLL_BEGIN, s:DOLL_END, s:DOLL_KEY,
+        \ {'conv': 1, 'esearch': 1})
+endfunction " }}}
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
