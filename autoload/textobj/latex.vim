@@ -25,7 +25,7 @@ endfunction " }}}
 " \begin{hoge}
 " foo
 " \end{hoge}
-function! s:select(in, b_pat, e_pat, conv)
+function! s:select(in, b_pat, e_pat, mode)
   call s:log("pat=" . string([a:b_pat, a:e_pat]))
   let pos = getpos('.')
   call s:log("pos=" . string(pos))
@@ -52,13 +52,17 @@ function! s:select(in, b_pat, e_pat, conv)
     endif
   endif
 
-  if a:conv
+  if get(a:mode, 'conv', 0)
     let epat = substitute(a:e_pat, '\\1', '\=s:escape(sn[1])', '')
   else
     let epat = a:e_pat
   endif
   call s:log("epat=" . string(epat))
-  let epos = searchpairpos(a:b_pat, '', epat, 'W')
+  if get(a:mode, 'esearch', 0)
+    let epos = searchpos(a:b_pat, 'W')
+  else
+    let epos = searchpairpos(a:b_pat, '', epat, 'W')
+  endif
   call s:log("epos=" . string(epos))
   if epos[0] == 0 && epos[1] == 0 || epos[0] < pos[1]
     return 0
@@ -96,27 +100,27 @@ let s:CMD_BEGIN = '\%(^\s*\)\\\k\+{'
 let s:CMD_END   = '}'
 
 function! textobj#latex#env_a()
-  return s:select(0, s:ENV_BEGIN, s:ENV_END, 1)
+  return s:select(0, s:ENV_BEGIN, s:ENV_END, {'conv' : 1})
 endfunction
 
 function! textobj#latex#env_i()
-  return s:select(1, s:ENV_BEGIN, s:ENV_END, 1)
+  return s:select(1, s:ENV_BEGIN, s:ENV_END, {'conv' : 1})
 endfunction
 
 function! textobj#latex#cmd_a()
-  return s:select(0, s:CMD_BEGIN, s:CMD_END, 0)
+  return s:select(0, s:CMD_BEGIN, s:CMD_END, {'conv' : 0})
 endfunction
 
 function! textobj#latex#cmd_i()
-  return s:select(1, s:CMD_BEGIN, s:CMD_END, 0)
+  return s:select(1, s:CMD_BEGIN, s:CMD_END, {'conv' : 0})
 endfunction
 
 function! textobj#latex#doll_a()
-  return s:select(0, s:DOLL_BEGIN, s:DOLL_END, 1)
+  return s:select(0, s:DOLL_BEGIN, s:DOLL_END, {'conv': 1, 'esearch': 1})
 endfunction
 
 function! textobj#latex#doll_i()
-  return s:select(1, s:DOLL_BEGIN, s:DOLL_END, 1)
+  return s:select(1, s:DOLL_BEGIN, s:DOLL_END, {'conv': 1, 'esearch': 1})
 endfunction
 
 let &cpo = s:save_cpo
