@@ -16,12 +16,12 @@ call textobj#user#plugin('latex', {
 \     'select-i': 'iLc',
 \   },
 \  'display-math': {
-\     'pattern': ['\\\[', '\\\]'],
+\     'pattern': ['\\\[\%(\s*\%(%.*\)*\n\)\=', '\\\]'],
 \     'select-a': 'aL[',
 \     'select-i': 'iL[',
 \   },
 \  'inline-math': {
-\     'pattern': ['\\(', '\\)'],
+\     'pattern': ['\\(\%(\s*\%(%.*\)*\n\)\=', '\\)'],
 \     'select-a': 'aL(',
 \     'select-i': 'iL(',
 \   },
