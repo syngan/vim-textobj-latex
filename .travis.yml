@@ -1,6 +1,7 @@
 before_script:
     - git clone https://github.com/syngan/vim-vimlint /tmp/vim-vimlint
     - git clone https://github.com/ynkdir/vim-vimlparser /tmp/vim-vimlparser
+    - git clone https://github.com/osyo-manga/vim-textobj-multitextobj /tmp/vim-textobj-multitextobj
 
 language: ruby
 rvm:

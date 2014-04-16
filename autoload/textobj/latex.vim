@@ -38,6 +38,13 @@ function! s:select_prev(in, s_pat, e_pat, key, mode) " {{{
 
   let sn = matchlist(getline("."), spat, spos[2] - 1)
   call s:log("sn=" . string(sn))
+
+  if has_key(a:mode, 'except')
+    if sn[0] =~ a:mode.except
+      return 0
+    endif
+  endif
+
   if a:in
     let spos[2] += len(sn[0])
 
@@ -181,12 +188,14 @@ let s:ENV_KEY   = '\(\k\+\*\=\)'
 let s:ENV_BEGIN = '\s*\\begin\s*{\s*\1\s*}\%({[^}]*}\|\[[^]]*\]\)*\s*\%(%.*\)\=\n\='
 let s:ENV_END   = '\s*\\end\s*{\s*\1\s*}'
 
-let s:DOLL_KEY   = '\(\$\$\=\)'
+let s:DOLL_KEY   = '\(\$\{1,2}\)'
 let s:DOLL_BEGIN = '\1'
 let s:DOLL_END   = '\1'
 
-let s:CMD_BEGIN = '\%(^\s*\)\\\k\+{'
+" postexpr で対応すべきか. 微妙な実装
+let s:CMD_BEGIN = '\%(^\s*\)\=\\\k\+{'
 let s:CMD_END   = '}'
+let s:CMD_EX   =  '\\\(begin\|end\)'
 
 function! textobj#latex#env_a() " {{{
   return s:select(0, s:ENV_BEGIN, s:ENV_END, s:ENV_KEY,
@@ -199,11 +208,11 @@ function! textobj#latex#env_i() " {{{
 endfunction " }}}
 
 function! textobj#latex#cmd_a() " {{{
-  return s:select(0, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0})
+  return s:select(0, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0, 'except': s:CMD_EX})
 endfunction " }}}
 
 function! textobj#latex#cmd_i() " {{{
-  return s:select(1, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0})
+  return s:select(1, s:CMD_BEGIN, s:CMD_END, '', {'conv' : 0, 'except': s:CMD_EX})
 endfunction " }}}
 
 function! textobj#latex#doll_a() " {{{
