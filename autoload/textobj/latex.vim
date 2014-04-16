@@ -71,7 +71,7 @@ function! s:select_prev(in, s_pat, e_pat, key, mode) " {{{
 
   let en = matchstr(getline("."), epat, epos[1] - 1)
   call s:log("en=" . en)
-  if epos[0] == pos[1] && epos[1] + len(en) < pos[2]
+  if epos[0] == pos[1] && epos[1] + len(en) - 1 < pos[2]
     return 0
   endif
   if a:in
