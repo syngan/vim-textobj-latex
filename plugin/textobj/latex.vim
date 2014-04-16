@@ -25,19 +25,19 @@ call textobj#user#plugin('latex', {
 \     'select-a': 'aL(',
 \     'select-i': 'iL(',
 \   },
-\  'dollar2-math': {
+\  'dollar-math': {
 \     'select-a-function': 'textobj#latex#doll_a',
 \     'select-i-function': 'textobj#latex#doll_i',
-\     'select-a': 'aLd',
-\     'select-i': 'iLd',
+\     'select-a': 'aL$',
+\     'select-i': 'iL$',
 \   },
-\  'dollar-math-a': {
+\  'dollar2-math-a': {
 \     'pattern': '\(\$\{1,2}\)[^$]*\%(\n[^$]*\)*\1',
-\     'select' : 'aL$',
+\     'select' : 'aLd',
 \  },
-\  'dollar-math-i': {
+\  'dollar2-math-i': {
 \     'pattern': '\(\$\{1,2}\)\zs[^$]*\%(\n[^$]*\)*\ze\1',
-\     'select' : 'aL$',
+\     'select' : 'aLd',
 \  },
 \ })
 
