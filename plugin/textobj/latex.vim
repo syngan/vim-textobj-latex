@@ -2,6 +2,8 @@ if exists('g:loaded_textobj_latex_')
   finish
 endif
 
+let s:ws = '\%(\s*\%(%.*\)*\n\)\='
+
 call textobj#user#plugin('latex', {
 \   'environment': {
 \     'select-a-function': 'textobj#latex#env_a',
@@ -16,12 +18,12 @@ call textobj#user#plugin('latex', {
 \     'select-i': 'iLc',
 \   },
 \  'display-math': {
-\     'pattern': ['\\\[\%(\s*\%(%.*\)*\n\)\=', '\\\]'],
+\     'pattern': ['\\\[' . s:ws, '\\\]'],
 \     'select-a': 'aL[',
 \     'select-i': 'iL[',
 \   },
 \  'inline-math': {
-\     'pattern': ['\\(\%(\s*\%(%.*\)*\n\)\=', '\\)'],
+\     'pattern': ['\\(' . s:ws, '\\)'],
 \     'select-a': 'aL(',
 \     'select-i': 'iL(',
 \   },
