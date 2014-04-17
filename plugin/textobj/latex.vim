@@ -33,14 +33,6 @@ call textobj#user#plugin('latex', {
 \     'select-a': 'aL$',
 \     'select-i': 'iL$',
 \   },
-\  'dollar2-math-a': {
-\     'pattern': '\(\$\{1,2}\)[^$]*\%(\n[^$]*\)*\1',
-\     'select' : 'aLd',
-\  },
-\  'dollar2-math-i': {
-\     'pattern': '\(\$\{1,2}\)\zs[^$]*\%(\n[^$]*\)*\ze\1',
-\     'select' : 'aLd',
-\  },
 \ })
 
 
