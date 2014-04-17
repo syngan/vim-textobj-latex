@@ -56,12 +56,28 @@ describe 'multitextobj'
         Expect getpos('.')[1 : 2] == [2, 1]
       endfor
     endfor
+    for row in [22]
+      for col in [25]
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [24, 13]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [1, 1]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [23, 1]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [2, 1]
+      endfor
+    endfor
   end
   
   it 'screen'
     for row in [3,13,14,15,20]
-      for col in row==15 ? 
-      \ range(1, 14) + []: range(1, len(getline(row)))
+      for col in range(1, len(getline(row)))
         call cursor([row, col])
         execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
         execute 'normal!' "`>"
@@ -77,6 +93,25 @@ describe 'multitextobj'
         Expect getpos('.')[1 : 2] == [4, 1]
       endfor
     endfor
+
+    for row in [19]
+      for col in range(1, 8) + [14]
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [20, 12]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [3, 1]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [19, 14]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [4, 1]
+      endfor
+    endfor
+
   end
   
   it 'equation*'
@@ -139,7 +174,86 @@ describe 'multitextobj'
     endfor
   end
 
+  it '\[ \]'
+    for row in [16,17,18]
+      for col in range(1, len(getline(row)))
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [18, 2]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [16, 1]
 
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [17, 12]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [17, 1]
+      endfor
+    endfor
+  end
+
+
+  " skip line 19
+
+  it '\vspace'
+    for row in [21]
+      for col in range(1, len(getline(row)))
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, len(getline(row))]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 1]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, len(getline(row))-1]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 9]
+      endfor
+    endfor
+  end
+
+
+  it '\caption, \label'
+    for row in [22]
+      for col in range(1, 24)
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, 24]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 1]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, 23]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 10]
+      endfor
+
+      let l = len(getline(row))
+      for col in range(26, l)
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, l]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 26]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-multitextobj-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, l-1]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, 33]
+      endfor
+    endfor
+  end
 end
 
 " vim:set et ts=2 sts=2 sw=2 tw=0 fdm=marker:
