@@ -165,5 +165,65 @@ describe '\[ display mode \]'
       endfor
     endfor
   end
+
+  it 'same line'
+    call s:paste_code([
+        \ 'latex',
+        \ 't \[ x^2 + y^2 \] \[ 1 + 2 \] k',
+        \ 'tako'])
+
+    for row in range(2, 2)
+      for col in range(3, 17)
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [2, 17]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [2, 3]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [2, 15]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [2, 5]
+      endfor
+
+      for col in range(19, 29)
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [2, 29]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [2, 19]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [2, 27]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [2, 21]
+	  endfor
+	endfor
+
+    for row in [1, 3]
+      for col in range(1, len(getline(row)))
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-a)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, col]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, col]
+
+        call cursor([row, col])
+        execute 'normal' "v\<Plug>(textobj-latex-display-math-i)\<Esc>"
+        execute 'normal!' "`>"
+        Expect getpos('.')[1 : 2] == [row, col]
+        execute 'normal!' "`<"
+        Expect getpos('.')[1 : 2] == [row, col]
+      endfor
+    endfor
+  end
+
 end
 
