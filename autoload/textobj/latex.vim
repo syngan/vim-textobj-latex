@@ -185,8 +185,8 @@ function! s:select(in, b_pat, e_pat, key, mode) " {{{
 endfunction " }}}
 
 let s:ENV_KEY   = '\(\k\+\*\=\)'
-let s:ENV_BEGIN = '\s*\\begin\s*{\s*\1\s*}\%({[^}]*}\|\[[^]]*\]\)*\s*\%(%.*\)\=\n\='
-let s:ENV_END   = '\s*\\end\s*{\s*\1\s*}'
+let s:ENV_BEGIN = '\s*\\begin\s*{\1}\%({[^}]*}\|\[[^]]*\]\)*\s*\%(%.*\)\=\n\='
+let s:ENV_END   = '\s*\\end\s*{\1}'
 
 let s:DOLL_KEY   = '\(\$\{1,2}\)'
 let s:DOLL_BEGIN = '\1'
