@@ -184,6 +184,32 @@ function! s:select(in, b_pat, e_pat, key, mode) " {{{
   endtry
 endfunction " }}}
 
+function! s:select_sec(in) abort " {{{
+  let bgn = searchpos('^\s*\\\(chapter\|\(sub\)\{,2}section\|appendix\){', 'bcnW')
+  if bgn[0] == 0
+    return 0
+  endif
+  " @FIXME 閉じ括弧をちゃんと探しに行く必要がある
+  let bgn[0] = bgn[0] + a:in
+  let line = getline(bgn[0])
+  if line =~# '^\s*\\\(chapter\|appendix\)'
+    let pat = '^\s*\\\(chapter\|appendix\)'
+  elseif line =~# '^\s*\\section'
+    let pat = '^\s*\\\(chapter\|appendix\|section\)'
+  elseif line =~# '^\s*\\subsection'
+    let pat = '^\s*\\\(chapter\|appendix\|\(sub\)\{,1}section\)'
+  else
+    let pat = '^\s*\\\(chapter\|appendix\|\(sub\)\{,2}section\)'
+  endif
+
+  let end = searchpos(pat, 'nW')
+  if end[0] == 0
+    return ["V", [0, bgn[0], bgn[1], 0], getpos('$')]
+  else
+    return ["V", [0, bgn[0], bgn[1], 0], [0, end[0]-1,end[1], 0]]
+  endif
+endfunction " }}}
+
 let s:ENV_KEY   = '\(\k\+\*\=\)'
 let s:ENV_BEGIN = '\s*\\begin\s*{\1}\%({[^}]*}\|\[[^]]*\]\)*\s*\%(%.*\)\=\n\='
 let s:ENV_END   = '\s*\\end\s*{\1}'
@@ -223,6 +249,14 @@ endfunction " }}}
 function! textobj#latex#doll_i() " {{{
   return s:select(1, s:DOLL_BEGIN, s:DOLL_END, s:DOLL_KEY,
         \ {'conv': 1, 'esearch': 1})
+endfunction " }}}
+
+function! textobj#latex#sec_a() " {{{
+  return s:select_sec(0)
+endfunction " }}}
+
+function! textobj#latex#sec_i() " {{{
+  return s:select_sec(1)
 endfunction " }}}
 
 let &cpo = s:save_cpo

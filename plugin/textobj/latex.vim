@@ -33,6 +33,12 @@ call textobj#user#plugin('latex', {
 \     'select-a': 'aL$',
 \     'select-i': 'iL$',
 \   },
+\  'section': {
+\     'select-a-function': 'textobj#latex#sec_a',
+\     'select-i-function': 'textobj#latex#sec_i',
+\     'select-a': 'aLs',
+\     'select-i': 'iLs',
+\   },
 \ })
 
 
